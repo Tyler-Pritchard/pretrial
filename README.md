@@ -1,6 +1,6 @@
 # Pretrial: A Dark Comedy Horror Game Based on Real-Life Jail Experiences
 
-![alt](/project//Assets/images/cover_image.jpg)
+![alt](./Assets/images/cover.jpeg)
 
 ## Overview
 
