@@ -13,6 +13,9 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 
+		// Add rotation input
+    	public float rotate;
+
 		[Header("Movement Settings")]
 		public bool analogMovement;
 
@@ -43,6 +46,10 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
+		public void OnRotate(InputValue value)
+		{
+			RotateInput(value.Get<float>());  // Get rotation as a float
+		}
 #endif
 
 
@@ -64,6 +71,11 @@ namespace StarterAssets
 		public void SprintInput(bool newSprintState)
 		{
 			sprint = newSprintState;
+		}
+
+		public void RotateInput(float newRotateDirection)
+		{
+			rotate = newRotateDirection;
 		}
 		
 		private void OnApplicationFocus(bool hasFocus)

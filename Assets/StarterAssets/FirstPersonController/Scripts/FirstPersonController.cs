@@ -20,6 +20,8 @@ namespace StarterAssets
 		public float RotationSpeed = 1.0f;
 		[Tooltip("Acceleration and deceleration")]
 		public float SpeedChangeRate = 10.0f;
+		[Tooltip("Rotation speed of the character")]
+		public float PlayerRotationSpeed = 1.0f;
 
 		[Space(10)]
 		[Tooltip("The height the player can jump")]
@@ -115,6 +117,7 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			RotatePlayer();
 		}
 
 		private void LateUpdate()
@@ -153,47 +156,33 @@ namespace StarterAssets
 
 		private void Move()
 		{
-			// set target speed based on move speed, sprint speed and if sprint is pressed
+			// Set target speed based on sprinting or normal movement
 			float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
-			// if there is no input, set the target speed to 0
+			// Set to 0 if there's no input
 			if (_input.move == Vector2.zero) targetSpeed = 0.0f;
 
-			// a reference to the players current horizontal velocity
-			float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
+			// Calculate movement direction based on input: forward (Z) and strafe (X)
+			Vector3 inputDirection = transform.forward * _input.move.y + transform.right * _input.move.x;
 
-			float speedOffset = 0.1f;
-			float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
-
-			// accelerate or decelerate to target speed
-			if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
-			{
-				_speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
-				_speed = Mathf.Round(_speed * 1000f) / 1000f;
-			}
-			else
-			{
-				_speed = targetSpeed;
-			}
-
-			// Retrieve input direction for forward/backward movement
-			Vector3 inputDirection = transform.forward * _input.move.y; // Only Z-axis (forward/backward)
-
-			// Rotate player based on horizontal input (left/right arrow keys)
-			if (_input.move.x != 0)
-			{
-				// Rotate around Y-axis (turn the player left or right)
-				transform.Rotate(0, _input.move.x * RotationSpeed * Time.deltaTime, 0);
-			}
-
-			// Move the player forward/backward (ignoring X-axis for strafing)
+			// Move the player using the calculated input direction
 			if (_input.move != Vector2.zero)
 			{
-				// move forward/backward (using only Y input for Z-axis movement)
-				_controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+				_controller.Move(inputDirection.normalized * (targetSpeed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 			}
 		}
 
+		private void RotatePlayer()
+		{
+			// Get horizontal input from the Rotate action
+			float rotationInput = _input.rotate;  // Now reading the rotate input
+			
+			// Apply rotation
+			if (rotationInput != 0)
+			{
+				transform.Rotate(Vector3.up, rotationInput * PlayerRotationSpeed * Time.deltaTime);
+			}
+		}
 
 		private void JumpAndGravity()
 		{
